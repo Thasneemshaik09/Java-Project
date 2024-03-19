@@ -1,0 +1,193 @@
+# code for main window of the application
+package com.airline.db;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class MainWindow extends JFrame {
+    private JLabel statusLabel;
+    private Map<String, List<String>> userReservations;
+
+    public MainWindow() {
+        setTitle("Airline Reservation System");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        userReservations = new HashMap<>();
+        JMenuBar menuBar = createMenuBar();
+        JPanel mainPanel = createMainPanel();
+        setJMenuBar(menuBar);
+        add(mainPanel);
+        statusLabel = new JLabel("Welcome to the Airline Reservation System!");
+        add(statusLabel, BorderLayout.SOUTH);
+    }
+
+    private JMenuBar createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem exitItem = new JMenuItem("Exit");
+        exitItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+        fileMenu.add(exitItem);
+        JMenu helpMenu = new JMenu("Help");
+        JMenuItem aboutItem = new JMenuItem("About");
+        aboutItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(MainWindow.this,
+                        "Airline Reservation System\nVersion 1.0",
+                        "About", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        helpMenu.add(aboutItem);
+        menuBar.add(fileMenu);
+        menuBar.add(helpMenu);
+
+        return menuBar;
+    }
+
+    private JPanel createMainPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout());
+        JButton bookFlightButton = new JButton("Book a Flight");
+        JButton viewReservationsButton = new JButton("View Reservations");
+        JButton cancelReservationButton = new JButton("Cancel Reservation");
+        bookFlightButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                bookFlight();
+            }
+        });
+
+        viewReservationsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                viewReservations();
+            }
+        });
+
+        cancelReservationButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                cancelReservation();
+            }
+        });
+        panel.add(bookFlightButton);
+        panel.add(viewReservationsButton);
+        panel.add(cancelReservationButton);
+
+        return panel;
+    }
+
+    private void bookFlight() {
+        String name = JOptionPane.showInputDialog(MainWindow.this, "Enter your name:");
+        String email = JOptionPane.showInputDialog(MainWindow.this, "Enter your email:");
+        String phoneNumber = JOptionPane.showInputDialog(MainWindow.this, "Enter your phone number:");
+        String dateOfTravel = JOptionPane.showInputDialog(MainWindow.this, "Enter the date of travel (YYYY-MM-DD):");
+
+        if (name != null && !name.isEmpty() &&
+                email != null && !email.isEmpty() &&
+                phoneNumber != null && !phoneNumber.isEmpty() &&
+                dateOfTravel != null && !dateOfTravel.isEmpty()) {
+
+            // Simulated logic to fetch available flights for the entered date
+            String[] availableFlights = {"Flight 101", "Flight 102", "Flight 103"};
+
+            // Display available flights to the user
+            String selectedFlight = (String) JOptionPane.showInputDialog(MainWindow.this,
+                    "Select a flight:", "Available Flights",
+                    JOptionPane.QUESTION_MESSAGE, null,
+                    availableFlights, availableFlights[0]);
+
+            if (selectedFlight != null) {
+                // Booking successful
+                String message = "<html><center>Booking Successful!<br>Flight: " + selectedFlight + "</center></html>";
+                JOptionPane.showMessageDialog(MainWindow.this, new JLabel(message),
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
+                // Update the userReservations map with the booked flight
+                userReservations.computeIfAbsent(name, k -> new ArrayList<>()).add(selectedFlight);
+            } else {
+                // User canceled flight selection
+                statusLabel.setText("Booking Canceled.");
+            }
+        } else {
+            // User canceled entering details
+            statusLabel.setText("Booking Canceled.");
+        }
+    }
+
+    private void viewReservations() {
+        // View reservations logic
+        String name = JOptionPane.showInputDialog(MainWindow.this, "Enter your name:");
+        if (name != null && !name.isEmpty()) {
+            // Check if the user has reservations
+            List<String> reservations = userReservations.getOrDefault(name, new ArrayList<>());
+            if (!reservations.isEmpty()) {
+                // Display reservations to the user
+                StringBuilder message = new StringBuilder("<html><center>Your Reservations:<br>");
+                for (String reservation : reservations) {
+                    message.append("- ").append(reservation).append("<br>");
+                }
+                message.append("</center></html>");
+
+                JOptionPane.showMessageDialog(MainWindow.this, new JLabel(message.toString()),
+                        "Your Reservations", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                // No reservations
+                JOptionPane.showMessageDialog(MainWindow.this, "No Reservations.",
+                        "Info", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            // User canceled entering name
+            statusLabel.setText("View Reservations Canceled.");
+        }
+    }
+
+    private void cancelReservation() {
+        // Cancel reservation logic
+        String name = JOptionPane.showInputDialog(MainWindow.this, "Enter your name:");
+        if (name != null && !name.isEmpty()) {
+            // Check if the user has reservations
+            List<String> reservations = userReservations.getOrDefault(name, new ArrayList<>());
+            if (!reservations.isEmpty()) {
+                // Display reservations to the user and prompt for cancellation
+                String[] reservationArray = reservations.toArray(new String[0]);
+                String selectedReservation = (String) JOptionPane.showInputDialog(MainWindow.this,
+                        "Select a reservation to cancel:", "Your Reservations",
+                        JOptionPane.QUESTION_MESSAGE, null,
+                        reservationArray, reservationArray[0]);
+
+                if (selectedReservation != null) {
+                    // Cancel reservation successful
+                    JOptionPane.showMessageDialog(MainWindow.this, "Reservation Canceled Successfully: " + selectedReservation,
+                            "Success", JOptionPane.INFORMATION_MESSAGE);
+                    // Update the userReservations map to remove the canceled reservation
+                    reservations.remove(selectedReservation);
+                } else {
+                    // User canceled reservation cancellation
+                    statusLabel.setText("Cancellation Canceled.");
+                }
+            } else {
+                // No reservations
+                JOptionPane.showMessageDialog(MainWindow.this, "No Reservations.",
+                        "Info", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            // User canceled entering name
+            statusLabel.setText("Cancellation Canceled.");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new MainWindow().setVisible(true);
+            }
+        });
+    }
+}
