@@ -1,0 +1,24 @@
+# sql code for backend database 
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE flights (
+    flight_id INT PRIMARY KEY AUTO_INCREMENT,
+    flight_name VARCHAR(50) NOT NULL,
+    source VARCHAR(50) NOT NULL,
+    destination VARCHAR(50) NOT NULL,
+    departure_time DATETIME NOT NULL,
+    capacity INT NOT NULL,
+    remaining_seats INT NOT NULL
+);
+
+CREATE TABLE reservations (
+    reservation_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    flight_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (flight_id) REFERENCES flights(flight_id)
+);
