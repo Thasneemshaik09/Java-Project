@@ -1,0 +1,77 @@
+#code for login frame of the application
+package com.airline.db;
+
+import com.airline.business.UserManager;
+import com.airline.db.DBConnection;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+public class LoginFrame1 extends Frame {
+    
+	private static final long serialVersionUID = 1L;
+	private TextField usernameField;
+    private TextField passwordField;
+    private UserManager userManager;
+
+    public LoginFrame1() {
+        userManager = new UserManager();
+
+        setTitle("Airline Reservation System - Login");
+        setSize(300, 150);
+        setLayout(new GridLayout(3, 2));
+
+        add(new Label("Username:"));
+        usernameField = new TextField();
+        add(usernameField);
+
+        add(new Label("Password:"));
+        passwordField = new TextField();
+        passwordField.setEchoChar('*');
+        add(passwordField);
+
+        Button loginButton = new Button("Login");
+        loginButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                login();
+            }
+        });
+        add(loginButton);
+
+        setVisible(true);
+    }
+
+    private void login() {
+    	    String username = usernameField.getText();
+    	    String password = passwordField.getText();
+
+    	    try (Connection connection = DBConnection.getConnection()) {
+    	        if (userManager.authenticateUser(username, password)) {
+    	            System.out.println("Login Successful!");
+    	            openMainWindow();
+    	            dispose();
+    	        } else {
+    	            System.out.println("Login failed. Please check your credentials.");
+    	        }
+    	    } catch (SQLException ex) {
+    	        ex.printStackTrace();
+    	    }
+    	}
+
+    	private void openMainWindow() {
+    	    MainWindow mainWindow = new MainWindow();
+    	    mainWindow.setVisible(true);
+    	}
+    	public void windowClosing(WindowEvent e) {
+    	    System.exit(0);
+    	}
+
+
+    public static void main(String[] args) {
+        new LoginFrame1();
+    }
+}
